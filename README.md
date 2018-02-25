@@ -40,7 +40,7 @@ what other functionality the twitter api provides and try to integrate it too.
 The solution is currently deployed to Heroku at http://twit-proxy.herokuapp.com/. If you want to execute it locally you
 should follow the following steps:
 - Set the following environment variables:
-    - `Port`: The port number the server should listen for connections.
+    - `PORT`: The port number the server should listen for connections.
     - `HOST`: The current hostname of the server. Used for the OAuth redirect.
     - `NODE_ENV`: A string denoting the environment the server is running, e.g. 'development' or 'production'
     - `CONSUMER_KEY`: A twitter client application's consumer key.
