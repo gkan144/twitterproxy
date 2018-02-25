@@ -1,5 +1,14 @@
 const crypto = require('crypto');
 
+/**
+ * This method is used to create the Authorization header needed for requests to twitter. It follows the process described
+ * here: https://developer.twitter.com/en/docs/basics/authentication/guides/authorizing-a-request and
+ * here: https://developer.twitter.com/en/docs/basics/authentication/guides/creating-a-signature
+ * @param {string} method - the method for the request
+ * @param {string} url - the url to send the request to
+ * @param {URLSearchParams} searchParams - the query search parameters to be used to the request
+ * @returns {Promise<string>}
+ */
 async function createAuthorizationHeader({method, url, searchParams}) {
 
   const version = '1.0';
@@ -50,6 +59,10 @@ async function createAuthorizationHeader({method, url, searchParams}) {
     `${fixedEncodeURIComponent('oauth_version')}="${fixedEncodeURIComponent(version)}"`;
 }
 
+/**
+ * Creates a 32 alphanumeric character nonce
+ * @returns {string}
+ */
 function createNonce() {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -60,21 +73,26 @@ function createNonce() {
   return text;
 }
 
-function fixedEncodeURIComponent(str) {
-  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
-    return '%' + c.charCodeAt(0).toString(16);
+/**
+ * encodeURIComponent wrapper which follows RFC 3986 more strictly.
+ * Taken from here: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+ * @param {string} str
+ * @returns {string}
+ */
+const fixedEncodeURIComponent = (str) => encodeURIComponent(str).replace(/[!'()*]/g, c =>`%${c.charCodeAt(0).toString(16)}`);
+
+/**
+ * Initial attempt to create a nonce generating method by using random binary data.
+ * @returns {Promise<string>}
+ */
+function createBinaryNonce() {
+  return new Promise ((resolve, reject) => {
+    crypto.randomBytes(32, (err, buf) => {
+      if (err) reject(err);
+      resolve(buf.toString('base64'));
+    });
   });
 }
-
-// function createNonce() {
-//   return new Promise ((resolve, reject) => {
-//     crypto.randomBytes(32, (err, buf) => {
-//       if (err) reject(err);
-//       const b64string = buf.toString('base64');
-//       resolve(b64string.slice(1, b64string.length-1));
-//     });
-//   });
-// }
 
 module.exports = {
   createAuthorizationHeader
