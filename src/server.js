@@ -24,7 +24,7 @@ const client = new Twitter({
 passport.use(new TwitterStrategy({
     consumerKey: process.env.CONSUMER_KEY,
     consumerSecret: process.env.CONSUMER_SECRET,
-    callbackURL: `http://${process.env.HOST}:${process.env.PORT}/login/twitter/return`
+    callbackURL: `http://${process.env.HOST}${process.env.NODE_ENV !== 'production' ? `:${process.env.PORT}` : ''}/login/twitter/return`
   },
   function(token, tokenSecret, profile, cb) {
     return cb(null, profile);
