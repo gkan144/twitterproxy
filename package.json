@@ -1,0 +1,31 @@
+{
+  "name": "twitterproxy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/server.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gkaniouris/twitterproxy.git"
+  },
+  "author": "George Kaniouris",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gkaniouris/twitterproxy/issues"
+  },
+  "homepage": "https://github.com/gkaniouris/twitterproxy#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "connect-ensure-login": "^0.1.1",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "lodash": "^4.17.5",
+    "morgan": "^1.9.0",
+    "passport": "^0.4.0",
+    "passport-twitter": "^1.0.4"
+  }
+}
