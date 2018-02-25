@@ -1,9 +1,21 @@
+const {URLSearchParams} = require('url');
+
 const express = require('express');
 const passport = require('passport');
 const TwitterStrategy = require('passport-twitter').Strategy;
+const fetch = require('node-fetch');
+const Twitter = require('twitter');
 
 const {Header, Footer} = require(`./views`);
+const {createAuthorizationHeader} = require('./utils');
 
+
+const client = new Twitter({
+  consumer_key: process.env.TWITTER_CONSUMER_KEY,
+  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+  access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+});
 passport.use(new TwitterStrategy({
     consumerKey: process.env.CONSUMER_KEY,
     consumerSecret: process.env.CONSUMER_SECRET,
@@ -35,7 +47,10 @@ app.use(passport.session());
 app.get('/', function(req, res) {
   res.send(`${Header}${
     req.user ?
-      `<p>Hello, ${req.user.username}. View your <a href="/profile">profile</a>.</p>` :
+      `<div>
+        <p>Hello, ${req.user.username}. View your <a href="/profile">profile</a>.</p>
+        <p>View SamLab's <a href="/tweets/samlabs">tweets</a>.</p>
+      </div>` :
       `<p>Welcome! Please <a href="/login">Log in</a>.</p>`
   }${Footer}`
   );
@@ -64,6 +79,43 @@ app.get('/profile', require('connect-ensure-login').ensureLoggedIn(), function(r
         }
 ${Footer}`
   );
+});
+
+app.get('/tweets/:user', async function(req, res) {
+
+});
+
+app.get('/doNOTuse/tweets/:user', require('connect-ensure-login').ensureLoggedIn(), async function(req, res) {
+  const twitterApiUrl = 'https://api.twitter.com/1.1/search/tweets.json';
+
+  const searchParams = new URLSearchParams();
+  searchParams.set('q', `from:${req.params.user}`);
+
+  try {
+    const headerString = await createAuthorizationHeader({
+      method:'GET',
+      url: twitterApiUrl,
+      searchParams
+    });
+
+    const requestOptions = {
+      headers: {
+        Authorization: headerString
+      }
+    };
+    console.log(headerString);
+    const response = await fetch(`${twitterApiUrl}?${searchParams.toString()}`,requestOptions);
+    if(response.ok) {
+      const jsonResponse = await response.json();
+      res.json(jsonResponse);
+    } else {
+      console.log(response);
+      const body = await response.text();
+      res.status(response.status).send(`${response.statusText} - ${body}`);
+    }
+  } catch(error) {
+    console.error(error);
+  }
 });
 
 app.listen(process.env.PORT, function() {
